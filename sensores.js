@@ -1,34 +1,36 @@
 import mqtt from "mqtt";
 
-const client = mqtt.connect("mqtt://localhost:1883");
+// O Publisher também precisa da URL da nuvem e das credenciais!
+const brokerUrl = "5fa10436a0924bf6beaf1c0ca2ff10e0.s1.eu.hivemq.cloud"
+
+const options = {
+  port: 8883,
+  clientId: "sensores_estufa_giovana", // clientId diferente da central!
+  username: "giovana", 
+  password: "Giovana123",
+};
+
+const client = mqtt.connect(brokerUrl, options);
 
 let envios = { temp: 0, nivel: 0, fogo: 0 };
 
 client.on("connect", () => {
-  console.log("--- Sensores da Estufa Iniciados ---");
+  console.log("--- Sensores ONLINE no HiveMQ Cloud ---");
 
-  // Sensor 1: Temperatura (QoS 0) - Alta frequência, baixa criticidade
   setInterval(() => {
     envios.temp++;
-    const msg = `Temp: ${(20 + Math.random() * 5).toFixed(1)}°C (Envio #${envios.temp})`;
-    client.publish("estufa/temp", msg, { qos: 0 });
-    console.log(`[QoS 0] Temperatura enviada. Total: ${envios.temp}`);
+    client.publish("estufa/temp", `Temp: ${(20 + Math.random() * 5).toFixed(1)}°C`, { qos: 0 });
   }, 2000);
 
-  // Sensor 2: Nível de Água (QoS 1) - Importante, garante entrega
   setInterval(() => {
     envios.nivel++;
-    const msg = `Nível: ${Math.floor(Math.random() * 100)}% (Envio #${envios.nivel})`;
-    client.publish("estufa/nivel", msg, { qos: 1 });
-    console.log(`[QoS 1] Nível enviado. Total: ${envios.nivel}`);
+    client.publish("estufa/nivel", `Nível: ${Math.floor(Math.random() * 100)}%`, { qos: 1 });
   }, 5000);
 
-  // Sensor 3: Incêndio (QoS 2) - Crítico, exatamente uma vez
-  // Simulado a cada 15 segundos para o teste de estresse
   setInterval(() => {
     envios.fogo++;
-    const msg = `ALERTA DE FOGO #${envios.fogo}`;
-    client.publish("estufa/fogo", msg, { qos: 2 });
-    console.log(`[QoS 2] !!! ALERTA DE INCÊNDIO ENVIADO !!! Total: ${envios.fogo}`);
+    client.publish("estufa/fogo", `ALERTA DE FOGO #${envios.fogo}`, { qos: 2 });
   }, 15000);
 });
+
+client.on("error", (err) => console.log("Erro nos Sensores: ", err));

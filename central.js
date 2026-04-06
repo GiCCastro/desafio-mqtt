@@ -1,6 +1,6 @@
 import mqtt from "mqtt";
 
-const brokerUrl = "5fa10436a0924bf6beafashd1c0ca2ff10e0.s1.eu.hivemq.cloud"
+const brokerUrl = "5fa10436a0924bf6beaf1c0ca2ff10e0.s1.eu.hivemq.cloud"
 
 // Configurações cruciais para a Parte 2 do desafio (Teste de Estresse)
 const options = {
@@ -8,8 +8,8 @@ const options = {
   clientId: "monitor_estufa_giovana", 
   clean: false,
   
-  username: "gioajsvana", 
-  password: "ssgd",
+  username: "giovana", 
+  password: "Giovana123",
   
   connectTimeout: 4000,
   reconnectPeriod: 1000,
