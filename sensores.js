@@ -1,36 +1,29 @@
 import mqtt from "mqtt";
 
-// O Publisher também precisa da URL da nuvem e das credenciais!
-const brokerUrl = "5fa10436a0924bf6beaf1c0ca2ff10e0.s1.eu.hivemq.cloud"
+const brokerUrl = "mqtt://localhost:1883";
 
-const options = {
-  port: 8883,
-  clientId: "sensores_estufa_giovana", // clientId diferente da central!
-  username: "giovana", 
-  password: "Giovana123",
-};
-
-const client = mqtt.connect(brokerUrl, options);
-
-let envios = { temp: 0, nivel: 0, fogo: 0 };
-
-client.on("connect", () => {
-  console.log("--- Sensores ONLINE no HiveMQ Cloud ---");
-
-  setInterval(() => {
-    envios.temp++;
-    client.publish("estufa/temp", `Temp: ${(20 + Math.random() * 5).toFixed(1)}°C`, { qos: 0 });
-  }, 2000);
-
-  setInterval(() => {
-    envios.nivel++;
-    client.publish("estufa/nivel", `Nível: ${Math.floor(Math.random() * 100)}%`, { qos: 1 });
-  }, 5000);
-
-  setInterval(() => {
-    envios.fogo++;
-    client.publish("estufa/fogo", `ALERTA DE FOGO #${envios.fogo}`, { qos: 2 });
-  }, 15000);
+const client = mqtt.connect(brokerUrl, {
+  clientId: "sensores_estufa_giovana"
 });
 
-client.on("error", (err) => console.log("Erro nos Sensores: ", err));
+client.on("connect", () => {
+  console.log("--- Sensores Publicando no Mosquitto Local ---");
+
+  // Sensor 1: Temperatura - a cada 5 segundos
+  setInterval(() => {
+    client.publish("estufa/temp/ambiente", `Temp: 25°C`, { qos: 0 });
+    console.log(">> Enviado: Temperatura (QoS 0)");
+  }, 5000);
+
+  // Sensor 2: Nível Água - a cada 30 segundos
+  setInterval(() => {
+    client.publish("estufa/agua/nivel", `Nível: 80%`, { qos: 1 });
+    console.log(">> Enviado: Nível Água (QoS 1)");
+  }, 30000);
+
+  // Sensor 3: Incêndio - simulando detecção a cada 45 segundos
+  setInterval(() => {
+    client.publish("estufa/alerta/incendio", `FOGO!`, { qos: 2 });
+    console.log(">> Enviado: INCÊNDIO (QoS 2)");
+  }, 45000);
+});

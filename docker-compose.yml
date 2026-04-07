@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto_estufa
+    ports:
+      - "1883:1883"
+    # O PULO DO GATO: Esse comando libera o acesso para o seu código Node.js
+    command: mosquitto -c /mosquitto-no-auth.conf
